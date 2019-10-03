@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RDCMan programVersion="2.7" schemaVersion="3">
+  <file>
+    <credentialsProfiles />
+    <properties>
+      <expanded>True</expanded>
+      <name>asdfasdf</name>
+    </properties>
+    <server>
+      <properties>
+        <name>depm-olapsvr-dev</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <name>depm30</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <name>depm31</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <name>depm33</name>
+      </properties>
+    </server>
+  </file>
+  <connected />
+  <favorites />
+  <recentlyUsed />
+</RDCMan>

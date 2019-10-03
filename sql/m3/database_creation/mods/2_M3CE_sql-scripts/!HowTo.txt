@@ -1,0 +1,22 @@
+Create databases (and users) for 'Base Installation'
+====================================================
+
+create_fnd_database_and_user.cmd M3FOUNDATION
+create_database_and_user.cmd M3GRID
+create_database_and_user.cmd M3ENTERPRISECOLLABORATOR
+SQLCMD -U M3ENTERPRISECOLLABORATOR_USER -P M3ENTERPRISECOLLABORATOR_USER -d M3ENTERPRISECOLLABORATOR -i sql\EC_Provisioner_DB_MS.sql
+create_database_and_user.cmd M3EVENTANALYTICS
+SQLCMD -U M3EVENTANALYTICS_USER -P M3EVENTANALYTICS_USER -d M3EVENTANALYTICS -Q "create schema ea"
+create_database_and_user.cmd M3EVENTHUB
+SQLCMD -U M3EVENTHUB_USER -P M3EVENTHUB_USER -d M3EVENTHUB -Q "create schema eh"
+create_database_and_user.cmd M3PROVISIONSERVICE
+create_mdp_database_and_user.cmd M3MDP
+
+Create databases (and users) for Tenants
+========================================
+create_fnd_database_and_user.cmd M3BE_CUST03_AX1
+create_database_and_user.cmd M3H5_CUST03_AX1
+create_database_and_user.cmd M3EH_CUST03_AX1
+create_database_and_user.cmd M3EC_CUST03_AX1
+SQLCMD -U M3EC_CUST03_AX1_USER -P M3EC_CUST03_AX1_USER -d M3EC_CUST03_AX1-i sql\TenantDB_Collation_Snapshot.sql
+

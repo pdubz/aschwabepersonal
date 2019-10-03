@@ -1,0 +1,1 @@
+fts.pl -C -a tam -P tamfts-prd -r us -t tampreprodtest01 -e tst -p Gz4EruKB5RnD8Ppa

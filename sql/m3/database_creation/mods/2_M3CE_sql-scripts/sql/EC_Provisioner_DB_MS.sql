@@ -1,0 +1,148 @@
+BEGIN
+declare @sql varchar(1000)
+select @sql = 
+'ALTER DATABASE ' + DB_NAME() + ' COLLATE Latin1_General_BIN;'
+EXEC(@sql)
+END
+GO
+
+CREATE TABLE [dbo].[Tenants](
+	[TenantID] [varchar](50) NOT NULL,
+	[Company] [varchar](50) NOT NULL,
+	[Division] [varchar](50) NOT NULL,
+	[CentralFilePath] [varchar](1024) NULL,
+	[Overrides] varbinary(MAX) NULL,
+ CONSTRAINT [PK_Tenants] PRIMARY KEY CLUSTERED 
+(
+	[TenantID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+CREATE TABLE [dbo].[TenantDBs](
+	[TenantID] [varchar](50) NOT NULL,
+	[JDBC_URL] [varchar](100) NULL,
+	[DB_Schema] [varchar](50) NULL,
+	[Catalog] [varchar](50) NULL,
+	[Username] [varchar](50) NULL,
+	[Password] [varchar](100) NULL,
+	[JDBC_Driver] [varchar](50) NULL,
+ CONSTRAINT [PK_TenantDBs] PRIMARY KEY CLUSTERED 
+(
+	[TenantID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+ALTER TABLE [dbo].[TenantDBs]  WITH CHECK ADD  CONSTRAINT [FK_TenantDBs_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[TenantDBs] CHECK CONSTRAINT [FK_TenantDBs_Tenants]
+GO
+
+CREATE TABLE [dbo].[TenantCertificates](
+	[TenantID] [varchar](50) NOT NULL,
+	[Certificate] [varbinary](max) NULL,
+	[Password] [varchar](100) NULL,
+ CONSTRAINT [PK_TenantCertificates] PRIMARY KEY CLUSTERED 
+(
+	[TenantID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+ALTER TABLE [dbo].[TenantCertificates]  WITH CHECK ADD  CONSTRAINT [FK_TenantCertificates_Tenants] FOREIGN KEY([TenantID])
+REFERENCES [dbo].[Tenants] ([TenantID])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[TenantCertificates] CHECK CONSTRAINT [FK_TenantCertificates_Tenants]
+GO
+
+/*************************AGR-REPOSITORY***************************************/
+
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AGR]') AND type in (N'U'))
+BEGIN
+/* Drop constraints script is generated to allow dropping of the table */
+IF (OBJECT_ID('[dbo].[FK_dbo_Tenant_AGR_1]') IS NOT NULL)
+  ALTER TABLE [dbo].[Tenant_AGR] 
+    DROP CONSTRAINT [FK_dbo_Tenant_AGR_1];
+DROP TABLE [dbo].[AGR];
+END
+GO
+
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AGR]') AND type in (N'U'))
+BEGIN
+
+CREATE TABLE [dbo].[AGR] (
+[ID] bigint IDENTITY(1, 1) NOT NULL,
+[Name] nvarchar(50)  NOT NULL,
+[Description] nvarchar(100)  NULL,
+[Version] nvarchar(50)  NULL,
+[Data] varbinary(MAX)  NULL,
+[Date] bigint NOT NULL,
+[Active] bit NULL,
+CONSTRAINT [PK_AGR_ID] PRIMARY KEY CLUSTERED ([ID] ASC) WITH ( PAD_INDEX = OFF,FILLFACTOR = 100,IGNORE_DUP_KEY = OFF,STATISTICS_NORECOMPUTE = OFF,ALLOW_ROW_LOCKS = ON,ALLOW_PAGE_LOCKS = ON,DATA_COMPRESSION = NONE ) ON [PRIMARY],
+CONSTRAINT [U_NAME_VERSION] UNIQUE NONCLUSTERED ([Name] ASC, [Version] ASC) WITH ( PAD_INDEX = OFF,FILLFACTOR = 100,IGNORE_DUP_KEY = OFF,STATISTICS_NORECOMPUTE = OFF,ALLOW_ROW_LOCKS = ON,ALLOW_PAGE_LOCKS = ON,DATA_COMPRESSION = NONE ) ON [PRIMARY]
+)
+ON [PRIMARY]
+TEXTIMAGE_ON [PRIMARY];
+END;
+GO
+
+
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Tenant_AGR]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[Tenant_AGR] (
+	[ID] bigint IDENTITY(1, 1) NOT NULL,
+	[Tenant_ID] varchar(50) NOT NULL,
+	[AGR_ID] bigint NOT NULL,
+	[Date] bigint NOT NULL,
+	[Status] varchar(50) NULL,
+	[Group_ID] bigint NULL,
+CONSTRAINT [PK_Tenant_Agr_Id]
+PRIMARY KEY CLUSTERED ([ID] ASC)
+WITH ( PAD_INDEX = OFF,FILLFACTOR = 100,IGNORE_DUP_KEY = OFF,STATISTICS_NORECOMPUTE = OFF,ALLOW_ROW_LOCKS = ON,ALLOW_PAGE_LOCKS = ON,DATA_COMPRESSION = NONE )
+ ON [PRIMARY], CONSTRAINT [FK_dbo_Tenant_AGR_2] FOREIGN KEY ([Tenant_ID]) REFERENCES [dbo].[Tenants] ( [TenantID] ) ON DELETE CASCADE,
+CONSTRAINT [FK_dbo_Tenant_AGR_1] FOREIGN KEY ([AGR_ID]) REFERENCES [dbo].[AGR] ( [ID] ),
+CONSTRAINT [U_Tenant_Agr] UNIQUE NONCLUSTERED ([Tenant_ID] ASC, [AGR_ID] ASC)
+WITH ( PAD_INDEX = OFF,FILLFACTOR = 100,IGNORE_DUP_KEY = OFF,STATISTICS_NORECOMPUTE = OFF,ALLOW_ROW_LOCKS = ON,ALLOW_PAGE_LOCKS = ON,DATA_COMPRESSION = NONE ) ON [PRIMARY])
+ON [PRIMARY];
+END;
+GO
+
+
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Override]') AND type in (N'U'))
+BEGIN
+CREATE TABLE [dbo].[Override] (
+[ID] bigint IDENTITY(1, 1) NOT NULL,
+[Tenant_AGR_ID] bigint NOT NULL,
+[DATA] varbinary(MAX) NULL,
+CONSTRAINT [FK_TENANT_AGR] FOREIGN KEY ([Tenant_AGR_ID]) REFERENCES [dbo].[Tenant_AGR] ( [ID] ) ON DELETE CASCADE) ON [PRIMARY]
+TEXTIMAGE_ON [PRIMARY] WITH (DATA_COMPRESSION = NONE);
+END;
+GO
+
+

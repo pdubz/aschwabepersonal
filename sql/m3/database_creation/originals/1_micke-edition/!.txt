@@ -1,0 +1,54 @@
+*) ändra sökväg i settings till motsvarande som ade-databasen har
+   SET db_log_path=D:\SQLLogs\%db_name%		->	SET db_log_path=D:\data01\logs\
+   SET db_table_path=D:\SQLData\%db_name%	->	SET db_table_path=D:\data01\data\
+   SET db_index_path=D:\SQLIndexes\%db_name%	->	SET db_index_path=D:\data01\data\
+
+   E:\data01\data\
+   E:\data01\logs\
+   
+*) skapa 2 versioner av m3:s databaser (både base + tenant)
+   1. default
+   2. 1 fil per filegroup	<- kolla med leszek hur man gör, alt googla
+
+
+
+create_fnd_database_and_user.cmd M3FOUNDATION
+create_database_and_user.cmd M3GRID
+create_database_and_user.cmd M3ENTERPRISECOLLABORATOR
+SQLCMD -U M3ENTERPRISECOLLABORATOR_USER -P M3ENTERPRISECOLLABORATOR_USER -d M3ENTERPRISECOLLABORATOR -i sql\EC_Provisioner_DB_MS.sql
+create_database_and_user.cmd M3EVENTANALYTICS
+SQLCMD -U M3EVENTANALYTICS_USER -P M3EVENTANALYTICS_USER -d M3EVENTANALYTICS -Q "create schema ea"
+create_database_and_user.cmd M3EVENTHUB
+SQLCMD -U M3EVENTHUB_USER -P M3EVENTHUB_USER -d M3EVENTHUB -Q "create schema eh"
+create_database_and_user.cmd M3PROVISIONSERVICE
+
+------
+create_fnd_database_and_user.cmd M3BE_CUST03_AX1
+create_database_and_user.cmd M3H5_CUST03_AX1
+create_database_and_user.cmd M3EH_CUST03_AX1
+create_database_and_user.cmd M3EC_CUST03_AX1
+SQLCMD -U M3EC_CUST03_AX1_USER -P M3EC_CUST03_AX1_USER -d M3EC_CUST03_AX1-i sql\TenantDB_Collation_Snapshot.sql
+
+
+- fail
+  jag testade att skapa databaserna till M3BE först & det small pga att designen är gjord så att alla databaser ligger i en egen mapp. Nu krockar filnamnen i de 2 identiska filegroup:arna
+
+-----------
+ul -> S3 @ AUTO
+
+##############################################
+Base Installation db:s	<- tror att saleshub + enterprise search tillkommer
+----------------------
+M3FOUNDATION
+M3GRID
+M3ENTERPRISECOLLABORATOR
+M3EVENTANALYTICS
+M3EVENTHUB
+M3PROVISIONSERVICE
+
+tenant db:s	green			M3CE@ADE?
+-----------	-----			---------
+M3BE / M3	M3CUST03_AX1		M3BE_CUST03_AX1
+M3H5		M3H5_CUST03_AX1		M3H5_CUST03_AX1
+M3EH		M3EH_CUST03_AX1		M3EH_CUST03_AX1
+M3EC / IEC 	IEC_CUST03_AX1		M3EC_CUST03_AX1

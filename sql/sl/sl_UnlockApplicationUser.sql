@@ -1,0 +1,1 @@
+USE alpinecreek_DEM_CSI_app_0;SELECT *  FROM dbo.usernames WHERE username = 'sa'UPDATE dbo.usernames   SET [status] = 0     , loginfailures = 0WHERE username = 'sa'SELECT *  FROM dbo.usernames WHERE username = 'sa'

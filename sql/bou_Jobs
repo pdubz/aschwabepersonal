@@ -1,0 +1,19 @@
+DECLARE @DatabaseName sysname
+     , @SchemaName sysname
+   SET @DatabaseName = 'dba'
+   SET @SchemaName = 'bou'
+
+    IF NOT EXISTS ( SELECT 1
+                      FROM sys.schemas
+                     WHERE name = @SchemaName )
+       BEGIN
+           EXEC ( 'USE [' + @DatabaseName + ']; CREATE SCHEMA [' + @SchemaName + '] AUTHORIZATION [dbo]' )
+       END
+  EXEC dba.dbo.sp_AskBrent @ExpertMode = 1
+                         , @SinceStartup = 1
+                         , @OutputDatabaseName = @DatabaseName
+                         , @OutputSchemaName = @SchemaName
+                         , @OutputTableName = 'AskBrent'
+                         , @OutputTableNameFileStats = 'AskBrentFileStats'
+                         , @OutputTableNamePerfmonStats = 'AskBrentPerfmonStats'
+                         , @OutputTableNameWaitStats = 'AskBrentWaitStats'
